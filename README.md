@@ -16,5 +16,6 @@ Currently only works on macOS 12.3.1 (x86_64) due to hardcoded offsets.
 ## Demo
 - https://youtu.be/mTgWcQhbP7I
 
-## Note
-This repository is intended solely for educational purposes and should not be used for any malicious activities. 
+## Disclaimer
+This repository is intended solely for educational purposes and should not be used for any malicious activities.</br>
+There's no way responsible for me to any misuse of this PoC.
